@@ -2,21 +2,41 @@
    CONFIG
 ══════════════════════════════════════════════════════════════════ */
 const HABITS = [
-  { id: 'ai',     label: 'AI Classes',  icon: '🤖', color: '#6366f1' },
-  { id: 'flex',   label: 'Flexibility', icon: '🧘', color: '#a855f7' },
-  { id: 'str',    label: 'Strength',    icon: '💪', color: '#f97316' },
-  { id: 'golf',   label: 'Golf',        icon: '⛳', color: '#22c55e' },
-  { id: 'cardio', label: 'Cardio',      icon: '🏃', color: '#ec4899' },
+  { id: "ai", label: "AI Classes", icon: "🤖", color: "#6366f1" },
+  { id: "flex", label: "Flexibility", icon: "🧘", color: "#a855f7" },
+  { id: "str", label: "Strength", icon: "💪", color: "#f97316" },
+  { id: "golf", label: "Golf", icon: "⛳", color: "#22c55e" },
+  { id: "cardio", label: "Cardio", icon: "🏃", color: "#ec4899" },
 ];
 
 const MONTHS_L = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const MONTHS_S = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 const CIRC = 2 * Math.PI * 85; // 534.07…
@@ -24,41 +44,45 @@ const CIRC = 2 * Math.PI * 85; // 534.07…
 /* ══════════════════════════════════════════════════════════════════
    STATE
 ══════════════════════════════════════════════════════════════════ */
-let NOW       = new Date();
-let histM     = NOW.getMonth();
-let histY     = NOW.getFullYear();
+let NOW = new Date();
+let histM = NOW.getMonth();
+let histY = NOW.getFullYear();
 let prevScore = 0;
-let fwActive  = false;
+let fwActive = false;
 
 /* ══════════════════════════════════════════════════════════════════
    STORAGE  (localStorage, keyed by year/month/day)
 ══════════════════════════════════════════════════════════════════ */
-const sKey = (y, m, d)    => `ph_${y}_${m}_${d}`;
-const sSet = (y, m, d, v) => localStorage.setItem(sKey(y, m, d), JSON.stringify(v));
-const sGet = (y, m, d)    => {
-  try { return JSON.parse(localStorage.getItem(sKey(y, m, d)) || '{}'); }
-  catch { return {}; }
+const sKey = (y, m, d) => `ph_${y}_${m}_${d}`;
+const sSet = (y, m, d, v) =>
+  localStorage.setItem(sKey(y, m, d), JSON.stringify(v));
+const sGet = (y, m, d) => {
+  try {
+    return JSON.parse(localStorage.getItem(sKey(y, m, d)) || "{}");
+  } catch {
+    return {};
+  }
 };
 
 /* ══════════════════════════════════════════════════════════════════
    SCORE HELPERS
 ══════════════════════════════════════════════════════════════════ */
 function calcScore(data) {
-  return HABITS.filter(h => data[h.id]).length * 20;
+  return HABITS.filter((h) => data[h.id]).length * 20;
 }
 
 function scoreColor(s) {
-  if (s <= 0)  return '#3a3f52';
-  if (s <= 60) return '#ef4444';
-  if (s < 100) return '#eab308';
-  return '#22c55e';
+  if (s <= 0) return "#c7cad4";
+  if (s <= 60) return "#ef4444";
+  if (s < 100) return "#eab308";
+  return "#22c55e";
 }
 
 function scoreClass(s) {
-  if (s <= 0)  return 'no-log';
-  if (s <= 60) return 'c-red';
-  if (s < 100) return 'c-yel';
-  return 'c-grn';
+  if (s <= 0) return "no-log";
+  if (s <= 60) return "c-red";
+  if (s < 100) return "c-yel";
+  return "c-grn";
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -66,49 +90,51 @@ function scoreClass(s) {
 ══════════════════════════════════════════════════════════════════ */
 function renderToday() {
   NOW = new Date();
-  document.getElementById('today-date').textContent =
-    NOW.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  document.getElementById("today-date").textContent = NOW.toLocaleDateString(
+    "en-US",
+    { weekday: "long", month: "long", day: "numeric" },
+  );
 
-  const data  = sGet(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+  const data = sGet(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
   const score = calcScore(data);
-  prevScore   = score;
+  prevScore = score;
   buildCards(data);
   updateRing(score);
 }
 
 function buildCards(data) {
-  const list = document.getElementById('habits-list');
-  list.innerHTML = '';
+  const list = document.getElementById("habits-list");
+  list.innerHTML = "";
 
-  HABITS.forEach(h => {
-    const on   = !!data[h.id];
-    const card = document.createElement('div');
-    card.className = 'habit-card';
+  HABITS.forEach((h) => {
+    const on = !!data[h.id];
+    const card = document.createElement("div");
+    card.className = "habit-card";
 
     if (on) {
-      card.style.background  = h.color + '15'; // ~8% tint
-      card.style.borderColor = h.color + '55'; // ~33% border
+      card.style.background = h.color + "15"; // ~8% tint
+      card.style.borderColor = h.color + "55"; // ~33% border
     }
 
     card.innerHTML = `
-      <div class="habit-icon" style="${on ? `background:${h.color}22` : ''}">${h.icon}</div>
+      <div class="habit-icon" style="${on ? `background:${h.color}22` : ""}">${h.icon}</div>
       <div class="habit-info">
         <div class="habit-name">${h.label}</div>
         <div class="habit-pts">+20 pts</div>
       </div>
-      <div class="toggle${on ? ' on' : ''}" style="${on ? `background:${h.color}` : ''}">
+      <div class="toggle${on ? " on" : ""}" style="${on ? `background:${h.color}` : ""}">
         <div class="toggle-thumb"></div>
       </div>`;
 
-    card.addEventListener('click', () => toggleHabit(h.id));
+    card.addEventListener("click", () => toggleHabit(h.id));
     list.appendChild(card);
   });
 }
 
 function toggleHabit(id) {
   NOW = new Date();
-  const data  = sGet(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
-  data[id]    = !data[id];
+  const data = sGet(NOW.getFullYear(), NOW.getMonth(), NOW.getDate());
+  data[id] = !data[id];
   sSet(NOW.getFullYear(), NOW.getMonth(), NOW.getDate(), data);
 
   const score = calcScore(data);
@@ -119,24 +145,25 @@ function toggleHabit(id) {
 }
 
 function updateRing(s) {
-  const arc   = document.getElementById('ring-arc');
-  const pct   = document.getElementById('ring-pct');
-  const cel   = document.getElementById('celebrate');
+  const arc = document.getElementById("ring-arc");
+  const pct = document.getElementById("ring-pct");
+  const cel = document.getElementById("celebrate");
   const color = scoreColor(s);
 
   arc.style.strokeDashoffset = CIRC - (s / 100) * CIRC;
   arc.style.stroke = color;
-  pct.textContent  = s + '%';
-  pct.style.color  = s > 0 ? color : '#6b7380';
-  cel.className    = 'celebrate' + (s === 100 ? ' show' : '');
+  pct.textContent = s + "%";
+  pct.style.color = s > 0 ? color : "#9aa1b0";
+  cel.className = "celebrate" + (s === 100 ? " show" : "");
 }
 
 /* ══════════════════════════════════════════════════════════════════
    HISTORY VIEW
 ══════════════════════════════════════════════════════════════════ */
 function renderHistory() {
-  document.getElementById('month-name').textContent = `${MONTHS_L[histM]} ${histY}`;
-  document.getElementById('year-hd').textContent    = `${histY} Overview`;
+  document.getElementById("month-name").textContent =
+    `${MONTHS_L[histM]} ${histY}`;
+  document.getElementById("year-hd").textContent = `${histY} Overview`;
   renderCalendar();
   renderMonthStats();
   renderYearGrid();
@@ -144,34 +171,34 @@ function renderHistory() {
 
 function renderCalendar() {
   NOW = new Date();
-  const grid     = document.getElementById('cal-grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById("cal-grid");
+  grid.innerHTML = "";
 
   const startDay = new Date(histY, histM, 1).getDay();
-  const daysInM  = new Date(histY, histM + 1, 0).getDate();
+  const daysInM = new Date(histY, histM + 1, 0).getDate();
   const isCurMon = histY === NOW.getFullYear() && histM === NOW.getMonth();
 
   // Empty offset cells
   for (let i = 0; i < startDay; i++) {
-    const e = document.createElement('div');
-    e.className = 'cday empty';
+    const e = document.createElement("div");
+    e.className = "cday empty";
     grid.appendChild(e);
   }
 
   for (let d = 1; d <= daysInM; d++) {
-    const el       = document.createElement('div');
-    const dayDate  = new Date(histY, histM, d);
+    const el = document.createElement("div");
+    const dayDate = new Date(histY, histM, d);
     const isFuture = dayDate > NOW && !(isCurMon && d === NOW.getDate());
-    const isToday  = isCurMon && d === NOW.getDate();
+    const isToday = isCurMon && d === NOW.getDate();
 
     if (isFuture) {
-      el.className   = 'cday future';
+      el.className = "cday future";
       el.textContent = d;
     } else {
       const data = sGet(histY, histM, d);
-      const s    = calcScore(data);
-      el.className = `cday ${scoreClass(s)}${isToday ? ' today' : ''}`;
-      el.innerHTML = `<span>${d}</span>${s > 0 ? `<span class="cday-sub">${s}%</span>` : ''}`;
+      const s = calcScore(data);
+      el.className = `cday ${scoreClass(s)}${isToday ? " today" : ""}`;
+      el.innerHTML = `<span>${d}</span>${s > 0 ? `<span class="cday-sub">${s}%</span>` : ""}`;
     }
     grid.appendChild(el);
   }
@@ -179,22 +206,27 @@ function renderCalendar() {
 
 function renderMonthStats() {
   NOW = new Date();
-  const daysInM  = new Date(histY, histM + 1, 0).getDate();
+  const daysInM = new Date(histY, histM + 1, 0).getDate();
   const isCurMon = histY === NOW.getFullYear() && histM === NOW.getMonth();
-  const limit    = isCurMon ? NOW.getDate() : daysInM;
-  let total = 0, perfect = 0, tracked = 0;
+  const limit = isCurMon ? NOW.getDate() : daysInM;
+  let total = 0,
+    perfect = 0,
+    tracked = 0;
 
   for (let d = 1; d <= limit; d++) {
     const s = calcScore(sGet(histY, histM, d));
-    if (s > 0)    { total += s; tracked++; }
+    if (s > 0) {
+      total += s;
+      tracked++;
+    }
     if (s === 100) perfect++;
   }
   const avg = tracked > 0 ? Math.round(total / tracked) : 0;
 
-  document.getElementById('mstats').innerHTML = `
+  document.getElementById("mstats").innerHTML = `
     <div class="mstat">
-      <div class="mstat-val" style="color:${avg > 0 ? scoreColor(avg) : 'var(--dim)'}">
-        ${avg > 0 ? avg + '%' : '—'}
+      <div class="mstat-val" style="color:${avg > 0 ? scoreColor(avg) : "var(--dim)"}">
+        ${avg > 0 ? avg + "%" : "—"}
       </div>
       <div class="mstat-lbl">Avg Score</div>
     </div>
@@ -210,34 +242,44 @@ function renderMonthStats() {
 
 function renderYearGrid() {
   NOW = new Date();
-  const grid     = document.getElementById('year-grid');
-  grid.innerHTML = '';
+  const grid = document.getElementById("year-grid");
+  grid.innerHTML = "";
 
   MONTHS_S.forEach((name, m) => {
-    const isFuture = histY > NOW.getFullYear() ||
+    const isFuture =
+      histY > NOW.getFullYear() ||
       (histY === NOW.getFullYear() && m > NOW.getMonth());
 
-    let total = 0, tracked = 0;
+    let total = 0,
+      tracked = 0;
     if (!isFuture) {
-      const days  = new Date(histY, m + 1, 0).getDate();
-      const limit = (histY === NOW.getFullYear() && m === NOW.getMonth())
-        ? NOW.getDate() : days;
+      const days = new Date(histY, m + 1, 0).getDate();
+      const limit =
+        histY === NOW.getFullYear() && m === NOW.getMonth()
+          ? NOW.getDate()
+          : days;
       for (let d = 1; d <= limit; d++) {
         const s = calcScore(sGet(histY, m, d));
-        if (s > 0) { total += s; tracked++; }
+        if (s > 0) {
+          total += s;
+          tracked++;
+        }
       }
     }
 
-    const avg   = tracked > 0 ? Math.round(total / tracked) : 0;
+    const avg = tracked > 0 ? Math.round(total / tracked) : 0;
     const isCur = m === histM;
-    const el    = document.createElement('div');
-    el.className = 'ym' + (isCur ? ' cur' : '');
+    const el = document.createElement("div");
+    el.className = "ym" + (isCur ? " cur" : "");
     el.innerHTML = `
       <div class="ym-name">${name}</div>
-      <div class="ym-avg" style="color:${isFuture || !tracked ? 'var(--dim)' : scoreColor(avg)}">
-        ${isFuture || !tracked ? '—' : avg + '%'}
+      <div class="ym-avg" style="color:${isFuture || !tracked ? "var(--dim)" : scoreColor(avg)}">
+        ${isFuture || !tracked ? "—" : avg + "%"}
       </div>`;
-    el.addEventListener('click', () => { histM = m; renderHistory(); });
+    el.addEventListener("click", () => {
+      histM = m;
+      renderHistory();
+    });
     grid.appendChild(el);
   });
 }
@@ -246,22 +288,32 @@ function renderYearGrid() {
    NAVIGATION
 ══════════════════════════════════════════════════════════════════ */
 function switchTab(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'history') renderHistory();
+  document
+    .querySelectorAll(".view")
+    .forEach((v) => v.classList.remove("active"));
+  document
+    .querySelectorAll(".tab-btn")
+    .forEach((b) => b.classList.remove("active"));
+  document.getElementById("view-" + name).classList.add("active");
+  document.getElementById("tab-" + name).classList.add("active");
+  if (name === "history") renderHistory();
 }
 
-document.getElementById('btn-prev').addEventListener('click', () => {
+document.getElementById("btn-prev").addEventListener("click", () => {
   histM--;
-  if (histM < 0) { histM = 11; histY--; }
+  if (histM < 0) {
+    histM = 11;
+    histY--;
+  }
   renderHistory();
 });
 
-document.getElementById('btn-next').addEventListener('click', () => {
+document.getElementById("btn-next").addEventListener("click", () => {
   histM++;
-  if (histM > 11) { histM = 0; histY++; }
+  if (histM > 11) {
+    histM = 0;
+    histY++;
+  }
   renderHistory();
 });
 
@@ -272,15 +324,22 @@ function launchFireworks() {
   if (fwActive) return;
   fwActive = true;
 
-  const canvas = document.getElementById('fireworks');
-  const ctx    = canvas.getContext('2d');
-  canvas.width  = window.innerWidth;
+  const canvas = document.getElementById("fireworks");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  canvas.style.display = 'block';
+  canvas.style.display = "block";
 
   const COLORS = [
-    '#22c55e', '#34d399', '#6366f1', '#a855f7',
-    '#ec4899', '#f97316', '#38bdf8', '#eab308', '#f1f3f9'
+    "#22c55e",
+    "#34d399",
+    "#6366f1",
+    "#a855f7",
+    "#ec4899",
+    "#f97316",
+    "#38bdf8",
+    "#eab308",
+    "#f1f3f9",
   ];
   const particles = [];
   let shots = 0;
@@ -292,13 +351,14 @@ function launchFireworks() {
       const ang = (i / 100) * Math.PI * 2;
       const spd = 2 + Math.random() * 5.5;
       particles.push({
-        x, y,
-        vx:    Math.cos(ang) * spd * (0.5 + Math.random() * 0.9),
-        vy:    Math.sin(ang) * spd * (0.5 + Math.random() * 0.9) - 1,
+        x,
+        y,
+        vx: Math.cos(ang) * spd * (0.5 + Math.random() * 0.9),
+        vy: Math.sin(ang) * spd * (0.5 + Math.random() * 0.9) - 1,
         alpha: 1,
         color: c,
-        size:  1.8 + Math.random() * 2.8,
-        g:     0.05 + Math.random() * 0.05,
+        size: 1.8 + Math.random() * 2.8,
+        g: 0.05 + Math.random() * 0.05,
         decay: 0.96 + Math.random() * 0.02,
       });
     }
@@ -308,8 +368,8 @@ function launchFireworks() {
     if (shots >= MAX_SHOTS || !fwActive) return;
     shots++;
     burst(
-      window.innerWidth  * (0.15 + Math.random() * 0.7),
-      window.innerHeight * (0.08 + Math.random() * 0.38)
+      window.innerWidth * (0.15 + Math.random() * 0.7),
+      window.innerHeight * (0.08 + Math.random() * 0.38),
     );
     if (shots < MAX_SHOTS) setTimeout(fireShot, 320 + Math.random() * 260);
   }
@@ -317,20 +377,26 @@ function launchFireworks() {
 
   let frame = 0;
   function loop() {
-    if (!fwActive) { canvas.style.display = 'none'; return; }
+    if (!fwActive) {
+      canvas.style.display = "none";
+      return;
+    }
     frame++;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (let i = particles.length - 1; i >= 0; i--) {
       const p = particles[i];
-      p.x  += p.vx;
-      p.y  += p.vy;
+      p.x += p.vx;
+      p.y += p.vy;
       p.vy += p.g;
       p.vx *= 0.992;
       p.alpha *= p.decay;
-      if (p.alpha < 0.02) { particles.splice(i, 1); continue; }
+      if (p.alpha < 0.02) {
+        particles.splice(i, 1);
+        continue;
+      }
       ctx.globalAlpha = p.alpha;
-      ctx.fillStyle   = p.color;
+      ctx.fillStyle = p.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
@@ -341,13 +407,15 @@ function launchFireworks() {
       requestAnimationFrame(loop);
     } else {
       fwActive = false;
-      canvas.style.display = 'none';
+      canvas.style.display = "none";
     }
   }
   loop();
 
   // Safety timeout
-  setTimeout(() => { fwActive = false; }, 6500);
+  setTimeout(() => {
+    fwActive = false;
+  }, 6500);
 }
 
 /* ══════════════════════════════════════════════════════════════════
