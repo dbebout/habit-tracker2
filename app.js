@@ -72,7 +72,8 @@ function calcScore(data) {
 }
 
 function scoreColor(s) {
-  if (s <= 0) return "#c7cad4";
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  if (s <= 0) return dark ? "#3a3f52" : "#c7cad4";
   if (s <= 60) return "#ef4444";
   if (s < 100) return "#eab308";
   return "#22c55e";
@@ -153,7 +154,8 @@ function updateRing(s) {
   arc.style.strokeDashoffset = CIRC - (s / 100) * CIRC;
   arc.style.stroke = color;
   pct.textContent = s + "%";
-  pct.style.color = s > 0 ? color : "#9aa1b0";
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  pct.style.color = s > 0 ? color : dark ? "#6b7380" : "#9aa1b0";
   cel.className = "celebrate" + (s === 100 ? " show" : "");
 }
 
@@ -419,6 +421,43 @@ function launchFireworks() {
 }
 
 /* ══════════════════════════════════════════════════════════════════
+   THEME TOGGLE
+══════════════════════════════════════════════════════════════════ */
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("ph_theme", theme);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta)
+    meta.setAttribute("content", theme === "dark" ? "#0b0d12" : "#f5f6fa");
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("ph_theme");
+  const prefersDark =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(saved || (prefersDark ? "dark" : "light"));
+}
+
+function toggleTheme() {
+  const cur =
+    document.documentElement.getAttribute("data-theme") === "dark"
+      ? "dark"
+      : "light";
+  applyTheme(cur === "dark" ? "light" : "dark");
+  renderToday();
+  const historyVisible = document
+    .getElementById("view-history")
+    .classList.contains("active");
+  if (historyVisible) renderHistory();
+}
+
+document
+  .getElementById("theme-toggle-btn")
+  ?.addEventListener("click", toggleTheme);
+
+/* ══════════════════════════════════════════════════════════════════
    INIT
 ══════════════════════════════════════════════════════════════════ */
+initTheme();
 renderToday();
